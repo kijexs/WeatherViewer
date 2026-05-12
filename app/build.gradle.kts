@@ -9,7 +9,9 @@ plugins {
 android {
     namespace = "com.example.weatherviewer"
     compileSdk {
-        compileSdk = 36
+        version = release(36) {
+            minorApiLevel = 1
+        }
     }
 
     defaultConfig {
@@ -41,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.benchmark.common)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -53,6 +56,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
+    val retrofit_version = "2.11.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:${retrofit_version}")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
@@ -61,10 +69,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
