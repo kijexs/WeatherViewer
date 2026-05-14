@@ -6,10 +6,12 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 object RetrofitInstance {
-
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
     private val retrofit = Retrofit.Builder()
             .baseUrl("https://api.open-meteo.com/")
-            .addConverterFactory(Json.asConverterFactory(
+            .addConverterFactory(json.asConverterFactory(
                 "application/json; charset=utf-8".toMediaType()))
             .build()
 
