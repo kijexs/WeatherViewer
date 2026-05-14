@@ -1,7 +1,7 @@
-package com.example.di
+package com.example.weatherviewer.di
 
-import com.example.data.remote.RetrofitInstance
-import com.example.data.remote.WeatherApiService
+import com.example.weatherviewer.data.remote.RetrofitInstance
+import com.example.weatherviewer.data.remote.WeatherApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

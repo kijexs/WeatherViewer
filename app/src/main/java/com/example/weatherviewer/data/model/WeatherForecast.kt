@@ -1,4 +1,4 @@
-package com.example.data.model
+package com.example.weatherviewer.data.model
 
 data class CurrentWeather(
     val temperature: Double,

@@ -1,4 +1,4 @@
-package com.example.data.model
+package com.example.weatherviewer.data.model
 
 fun String.toDayDisplay(): String {
     val date: List<String> = this.split("-")

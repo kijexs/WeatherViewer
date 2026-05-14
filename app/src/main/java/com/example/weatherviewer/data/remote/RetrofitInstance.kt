@@ -1,4 +1,4 @@
-package com.example.data.remote
+package com.example.weatherviewer.data.remote
 
 import kotlinx.serialization.json.Json
 import retrofit2.Retrofit

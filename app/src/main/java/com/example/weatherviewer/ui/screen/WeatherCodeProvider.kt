@@ -1,4 +1,4 @@
-package com.example.ui.screen
+package com.example.weatherviewer.ui.screen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit

@@ -1,9 +1,9 @@
-package com.example.data.remote
+package com.example.weatherviewer.data.remote
 
-import com.example.data.model.CurrentWeather
-import com.example.data.model.DailyForecast
-import com.example.data.model.HourlyForecast
-import com.example.data.model.WeatherForecast
+import com.example.weatherviewer.data.model.CurrentWeather
+import com.example.weatherviewer.data.model.DailyForecast
+import com.example.weatherviewer.data.model.HourlyForecast
+import com.example.weatherviewer.data.model.WeatherForecast
 import java.time.LocalDateTime
 
 fun WeatherResponse.toWeatherForecast():WeatherForecast {

@@ -1,6 +1,6 @@
-package com.example.viewmodel
+package com.example.weatherviewer.viewmodel
 
-import com.example.data.model.WeatherForecast
+import com.example.weatherviewer.data.model.WeatherForecast
 
 sealed interface WeatherUiState {
     data object Loading : WeatherUiState

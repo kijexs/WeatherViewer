@@ -1,8 +1,8 @@
-package com.example.data.repository
+package com.example.weatherviewer.data.repository
 
-import com.example.data.model.WeatherForecast
-import com.example.data.remote.WeatherApiService
-import com.example.data.remote.toWeatherForecast
+import com.example.weatherviewer.data.model.WeatherForecast
+import com.example.weatherviewer.data.remote.WeatherApiService
+import com.example.weatherviewer.data.remote.toWeatherForecast
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow

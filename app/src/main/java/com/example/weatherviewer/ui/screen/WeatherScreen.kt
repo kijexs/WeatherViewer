@@ -1,4 +1,4 @@
-package com.example.ui.screen
+package com.example.weatherviewer.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.data.model.CurrentWeather
-import com.example.data.model.DailyForecast
-import com.example.data.model.HourlyForecast
-import com.example.data.model.WeatherForecast
-import com.example.data.model.toDayDisplay
-import com.example.data.model.toHourDisplay
+import com.example.weatherviewer.data.model.CurrentWeather
+import com.example.weatherviewer.data.model.DailyForecast
+import com.example.weatherviewer.data.model.HourlyForecast
+import com.example.weatherviewer.data.model.WeatherForecast
+import com.example.weatherviewer.data.model.toDayDisplay
+import com.example.weatherviewer.data.model.toHourDisplay
 import com.example.viewmodel.WeatherUiState
 import com.example.viewmodel.WeatherViewModel
 
