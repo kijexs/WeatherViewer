@@ -61,6 +61,10 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-kotlinx-serialization:${retrofit_version}")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
+    implementation("androidx.compose.material:material:1.3.1")
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
