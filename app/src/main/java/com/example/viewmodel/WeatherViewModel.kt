@@ -20,8 +20,8 @@ class WeatherViewModel @Inject constructor(
     private val repository: WeatherRepository
 ) : ViewModel() {
     companion object {
-        const val DEFAULT_LAT = 55.75
-        const val DEFAULT_LON = 37.61
+        const val DEFAULT_LAT = 59.8833
+        const val DEFAULT_LON = 29.9
     }
 
     private val _coordinates = MutableStateFlow(DEFAULT_LAT to DEFAULT_LON)
@@ -36,6 +36,7 @@ class WeatherViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WeatherUiState.Loading)
 
     fun refresh() {
-        _coordinates.value = _coordinates.value
+        _coordinates.value = 0.0 to 0.0  // триггерим flatMapLatest
+        _coordinates.value = DEFAULT_LAT to DEFAULT_LON
     }
 }
