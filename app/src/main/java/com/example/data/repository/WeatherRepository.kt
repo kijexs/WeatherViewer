@@ -12,10 +12,9 @@ import kotlinx.coroutines.flow.flow
 class WeatherRepository @Inject constructor (
     private val apiService: WeatherApiService
 ){
-     fun getWeatherForecast(latitude: Double, longitude: Double ): Flow<List<WeatherForecast>> = flow {
+     fun getWeatherForecast(latitude: Double, longitude: Double ): Flow<WeatherForecast> = flow {
          val weatherResponse = apiService.getWeatherForecast(latitude, longitude)
          val forecastList = weatherResponse.toWeatherForecast()
          emit(forecastList)
     }
-
 }
