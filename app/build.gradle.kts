@@ -44,6 +44,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.benchmark.common)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -64,6 +65,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.compose.material:material:1.3.1")
+
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
