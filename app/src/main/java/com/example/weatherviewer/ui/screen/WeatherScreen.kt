@@ -1,5 +1,6 @@
 package com.example.weatherviewer.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,38 +22,70 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.weatherviewer.data.model.CurrentWeather
 import com.example.weatherviewer.data.model.DailyForecast
 import com.example.weatherviewer.data.model.HourlyForecast
 import com.example.weatherviewer.data.model.WeatherForecast
-import com.example.weatherviewer.data.model.toDayDisplay
+import com.example.weatherviewer.data.model.everyThird
+import com.example.weatherviewer.data.model.hoursForDay
+import com.example.weatherviewer.data.model.nextHours
+import com.example.weatherviewer.data.model.toDayWithWeekday
 import com.example.weatherviewer.data.model.toHourDisplay
-import com.example.viewmodel.WeatherUiState
-import com.example.viewmodel.WeatherViewModel
+import com.example.weatherviewer.viewmodel.WeatherUiState
+import com.example.weatherviewer.viewmodel.WeatherViewModel
+import com.example.weatherviewer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val isRefreshing = state is WeatherUiState.Loading
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Погода") }) }
+        topBar = { TopAppBar(title = {  Text("Погода") }) }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
-            when (val currentState = state) {
-                is WeatherUiState.Loading -> LoadingContent()
-                is WeatherUiState.Error -> ErrorContent(
-                    message = currentState.message,
-                    onRetry = { viewModel.refresh() }
-                )
-                is WeatherUiState.Success -> ForecastList(currentState.forecast)
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() }
+        )
+        {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.tertiary,
+                                MaterialTheme.colorScheme.secondary,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        )
+                    )
+                    .padding(padding)) {
+                when (val currentState = state) {
+                    is WeatherUiState.Loading -> LoadingContent()
+                    is WeatherUiState.Error -> ErrorContent(
+                        message = currentState.message,
+                        onRetry = { viewModel.refresh() }
+                    )
+                    is WeatherUiState.Success -> ForecastList(currentState.forecast)
+                }
             }
         }
     }
@@ -72,7 +106,7 @@ fun ForecastList(forecast: WeatherForecast) {
 
         item {
             LazyRow {
-                items (forecast.hourly){ hour ->
+                items (forecast.nextHours()){ hour ->
                     HourlyCard(hour)
                 }
             }
@@ -87,7 +121,18 @@ fun ForecastList(forecast: WeatherForecast) {
         }
 
         items(forecast.daily) { day ->
-            DayCard(day)
+            DayCarsWithDetail(day, forecast)
+        }
+
+        item {
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.walking_cat)
+            )
+            LottieAnimation(
+                composition = composition,
+                modifier = Modifier.fillMaxSize(),
+                iterations = LottieConstants.IterateForever
+            )
         }
     }
 }
@@ -113,11 +158,21 @@ fun CurrentWeatherSection(currentWeather: CurrentWeather) {
             modifier = Modifier.padding(top = 8.dp),
             style = MaterialTheme.typography.bodyMedium
         )
-        Text(
-            text = "Ветер: ${currentWeather.windSpeed} м/с",
-            modifier = Modifier.padding(top = 8.dp),
-            style = MaterialTheme.typography.bodyMedium
-        )
+        if (currentWeather.windSpeed != null) {
+            Text(
+                text = "Ветер: ${currentWeather.windSpeed} м/с",
+                modifier = Modifier.padding(top = 8.dp),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        else {
+            Text(
+                text = "отсутствует подключение к интернету",
+                modifier = Modifier.padding(top = 8.dp),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
     }
 }
 
@@ -144,13 +199,16 @@ fun HourlyCard(hour: HourlyForecast) {
 }
 
 @Composable
-fun DayCard(day: DailyForecast) {
+fun DayCard(day: DailyForecast, onClick: () -> Unit) {
     Card(modifier = Modifier
         .padding(8.dp)
         .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = weatherCardColor(day.weatherCode)
-        )
+        ),
+        onClick = onClick
     ) {
        Row(
            modifier = Modifier
@@ -160,13 +218,32 @@ fun DayCard(day: DailyForecast) {
            verticalAlignment = Alignment.CenterVertically
        ) {
            Column(modifier = Modifier.weight(1f)) {
-               Text(text = day.date.toDayDisplay())
+               Text(text = day.date.toDayWithWeekday())
                Text(text = "${day.maxTemperature}° / ${day.minTemperature}°")
-               Text(text = day.weatherCode.toWeatherDescription())
+               Text(
+                   text = day.weatherCode.toWeatherDescription(),
+                   style = MaterialTheme.typography.bodySmall
+               )
            }
            WeatherIcon(code = day.weatherCode, size = 40.dp)
        }
 
+    }
+}
+
+@Composable
+fun DayCarsWithDetail(day: DailyForecast, forecast: WeatherForecast) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column() {
+        DayCard(day = day, onClick = { expanded = !expanded })
+        if (expanded) {
+            LazyRow {
+                items (forecast.hoursForDay(day.date).everyThird()){ hour ->
+                    HourlyCard(hour)
+                }
+            }
+        }
     }
 }
 
