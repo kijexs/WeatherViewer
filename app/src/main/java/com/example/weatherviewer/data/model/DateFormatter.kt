@@ -1,5 +1,9 @@
 package com.example.weatherviewer.data.model
 
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
+
 fun String.toDayDisplay(): String {
     val date: List<String> = this.split("-")
     val result: String = when (date[1].toInt())
@@ -19,6 +23,13 @@ fun String.toDayDisplay(): String {
         else -> "неизвестно"
     }
     return result
+}
+
+fun String.toDayWithWeekday(): String {
+    val date = LocalDate.parse(this)
+    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("ru"))
+    val dayAndMonth = this.toDayDisplay()
+    return "$dayOfWeek, $dayAndMonth"
 }
 
 fun String.toHourDisplay(): String = this.substringAfter("T")
