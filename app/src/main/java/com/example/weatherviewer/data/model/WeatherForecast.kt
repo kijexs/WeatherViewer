@@ -1,9 +1,11 @@
 package com.example.weatherviewer.data.model
 
+import com.example.weatherviewer.data.remote.takeNext5Hours
+
 data class CurrentWeather(
     val temperature: Double,
     val weatherCode: Int,
-    val windSpeed: Double
+    val windSpeed: Double?
 )
 
 data class HourlyForecast(
@@ -23,3 +25,15 @@ data class WeatherForecast (
     val hourly: List<HourlyForecast>,
     val daily: List<DailyForecast>
 )
+
+fun WeatherForecast.hoursForDay(date: String): List<HourlyForecast> {
+    return hourly.filter { it.time.startsWith(date) }
+}
+
+fun List<HourlyForecast>.everyThird(): List<HourlyForecast> {
+    return this.filterIndexed { index, _ ->  index % 3 == 0}
+}
+
+fun WeatherForecast.nextHours(): List<HourlyForecast> {
+    return hourly.takeNext5Hours()
+}
