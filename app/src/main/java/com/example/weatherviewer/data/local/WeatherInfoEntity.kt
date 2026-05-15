@@ -1,17 +1,15 @@
 package com.example.weatherviewer.data.local
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 
 @Entity(tableName = "current_weather")
 data class CurrentWeatherEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 1,
     val temperature: Double,
-    val weather_code: Int,
-    val windspeed_10m: Double,
+    val weatherCode: Int,
+    val windSpeed: Double,
     val downloadedAt: Long = System.currentTimeMillis()
 )
 
@@ -35,15 +33,4 @@ data class HourlyEntity(
     val time: String,
     val temperature: Double,
     val weatherCode: Int
-)
-
-data class WeatherDb(
-    @Embedded
-    val currentInfo: CurrentWeatherEntity,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "forecastId",
-    )
-    val daily: List<DailyEntity>,
-    val hourly: List<HourlyEntity>
 )

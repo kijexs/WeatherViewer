@@ -8,6 +8,6 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = false
 )
-abstract class GraphDatabase : RoomDatabase() {
-    abstract fun graphDao(): WeatherDb
+abstract class WeatherDatabase : RoomDatabase() {
+    abstract fun weatherDao(): WeatherDao
 }
