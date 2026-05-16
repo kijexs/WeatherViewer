@@ -1,0 +1,31 @@
+on:
+  pull_request:
+    - workflows: kotlin-ci-workflow
+      filter:
+        source_branches: "**"
+        target_branches: "main"
+        paths:
+          - "**.kt"
+          - "**.kts"
+          - "build.gradle.kts"
+          - "gradle/**"
+  push:
+    - workflows: kotlin-ci-workflow
+      filter:
+        branches: "main"
+workflows:
+  kotlin-ci-workflow:
+    tasks:
+      - test-and-check
+tasks:
+  - name: test-and-check
+    cubes:
+      - name: build-and-test
+
+cubes:
+  - name: build-and-test
+    script:
+      - gradle build
+      - gradle test
+      - gradle detekt
+      - gradle ktlintCheck

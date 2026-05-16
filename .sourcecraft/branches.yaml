@@ -1,0 +1,12 @@
+branch_protection:
+  policies:
+    - target: default_branch
+      message: "Direct push into main branch is forbidden, create PR first"
+      rules:
+        - prevent_deletion
+
+    - target: branch
+      matches: ["**", "!feature/**", "!bugfix/**", "!hotfix/**", "!chore/**"]
+      message: "Please use proper branch naming"
+      rules:
+        - prevent_creation
