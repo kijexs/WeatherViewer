@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("org.jetbrains.kotlinx.kover") version "0.9.7"
 }
 
 android {
@@ -78,6 +81,7 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
+    testImplementation("app.cash.turbine:turbine:1.2.1")
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.ktor.client.mock)
@@ -89,4 +93,36 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes("*_HiltModules*")
+                classes("*_HiltModules_*")
+                classes("dagger.hilt.internal.aggregatedroot.codegen.*")
+                classes("hilt_aggregated_deps.*")
+
+                classes("com.example.weatherviewer.di.*")
+
+                classes("com.example.weatherviewer.ui.theme.*")
+
+                classes("com.example.weatherviewer.data.local.*")
+
+                classes("com.example.weatherviewer.ui.screen.*")
+
+                classes("com.example.weatherviewer.WeatherViewerApplication")
+                classes("com.example.weatherviewer.MainActivity")
+            }
+        }
+    }
 }
