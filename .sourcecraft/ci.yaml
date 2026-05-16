@@ -12,20 +12,17 @@ on:
   push:
     - workflows: kotlin-ci-workflow
       filter:
-        branches: "main"
+        branches: "**"
+
 workflows:
   kotlin-ci-workflow:
     tasks:
-      - test-and-check
-tasks:
-  - name: test-and-check
-    cubes:
-      - name: build-and-test
-
-cubes:
-  - name: build-and-test
-    script:
-      - gradle build
-      - gradle test
-      - gradle detekt
-      - gradle ktlintCheck
+      - name: assemble-and-test
+        cubes:
+          - name: test-cube
+            image: cirrusci/android-sdk:30
+            script:
+              - ./gradlew build
+              - ./gradlew test
+              - ./gradlew detekt
+              - ./gradlew ktlintCheck 

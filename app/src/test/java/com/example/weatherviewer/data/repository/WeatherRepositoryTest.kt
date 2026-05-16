@@ -48,7 +48,7 @@ class WeatherRepositoryTest {
         coEvery { weatherDao.insertHourly(any()) } returns Unit
         coEvery { weatherDao.insertDaily(any()) } returns Unit
 
-        val result = repository.getWeatherForecast(59.8833, 29.9).collect { forecast ->
+        repository.getWeatherForecast(59.8833, 29.9).collect { forecast ->
             assertEquals(fakeResponse.toWeatherForecast(), forecast)
             return@collect
         }
@@ -65,7 +65,7 @@ class WeatherRepositoryTest {
         coEvery { weatherDao.getDailyForecast() } returns fakeResponse.daily.toDailyEntities()
         coEvery { weatherDao.getHourlyForecast() } returns fakeResponse.hourly.toHourlyEntities()
 
-        val result = repository.getWeatherForecast(59.8833, 29.9).first()
+        repository.getWeatherForecast(59.8833, 29.9).first()
 
         coVerify { weatherDao.getCurrentWeather() }
         coVerify { weatherDao.getDailyForecast() }
