@@ -1,4 +1,4 @@
-package com.example.weatherviewer.ui.screen
+package com.example.weatherviewer.data.model
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

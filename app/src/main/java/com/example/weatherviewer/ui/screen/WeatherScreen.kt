@@ -50,6 +50,9 @@ import com.example.weatherviewer.data.model.toHourDisplay
 import com.example.weatherviewer.viewmodel.WeatherUiState
 import com.example.weatherviewer.viewmodel.WeatherViewModel
 import com.example.weatherviewer.R
+import com.example.weatherviewer.data.model.WeatherIcon
+import com.example.weatherviewer.data.model.toWeatherDescription
+import com.example.weatherviewer.data.model.weatherCardColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
