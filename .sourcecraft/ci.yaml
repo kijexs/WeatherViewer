@@ -25,4 +25,4 @@ workflows:
               - ./gradlew build
               - ./gradlew test
               - ./gradlew detekt
-              - ./gradlew ktlintCheck 
+              - ./gradlew ktlintCheck
