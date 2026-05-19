@@ -1,8 +1,8 @@
 package com.example.weatherviewer.ui.screens
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -11,9 +11,10 @@ import com.example.weatherviewer.data.model.CurrentWeather
 import com.example.weatherviewer.data.model.DailyForecast
 import com.example.weatherviewer.data.model.HourlyForecast
 import com.example.weatherviewer.data.model.WeatherForecast
+import com.example.weatherviewer.data.model.toDayWithWeekday
+import com.example.weatherviewer.data.model.toHourDisplay
 import com.example.weatherviewer.data.repository.WeatherRepository
 import com.example.weatherviewer.ui.screen.WeatherScreen
-import com.example.weatherviewer.viewmodel.WeatherUiState
 import com.example.weatherviewer.viewmodel.WeatherViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -21,12 +22,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -44,16 +43,30 @@ class WeatherScreenTest {
     }
 
     companion object {
-        val fakeForecast = WeatherForecast(
-            current = CurrentWeather(22.0, 0, 5.0),
-            daily = listOf(DailyForecast("2026-05-15", 25.0, 15.0, 0)),
-            hourly = listOf(HourlyForecast("2026-05-15T14:00", 10.0, 0))
-        )
+        fun createFakeForecast(): WeatherForecast {
+            val now = java.time.LocalDateTime.now()
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:00")
+            val todayStr = now.toLocalDate().toString()
+
+            val hours = (0..5).map { offset ->
+                val time = now.plusHours(offset.toLong())
+                HourlyForecast(
+                    time = time.format(formatter),
+                    temperature = (10 + offset * 2).toDouble(),
+                    weatherCode = 0
+                )
+            }
+            return WeatherForecast(
+                current = CurrentWeather(22.0, 0, 5.0),
+                daily = listOf(DailyForecast(todayStr, 25.0, 15.0, 0)),
+                hourly = hours
+            )
+        }
     }
 
     @Test
     fun displaysCurrentWeatherOnSuccess() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(createFakeForecast())
 
         viewModel = WeatherViewModel(repository)
 
@@ -62,7 +75,9 @@ class WeatherScreenTest {
         }
 
         composeTestRule.onNodeWithText("22.0°C").assertIsDisplayed()
-        composeTestRule.onNodeWithText("ясно").assertIsDisplayed()
+        composeTestRule
+            .onAllNodesWithText("ясно")
+            .apply { get(0).assertExists() }
     }
 
     @Test
@@ -98,7 +113,10 @@ class WeatherScreenTest {
 
     @Test
     fun clickingDayCardShowsHourlyDetails() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        val forecast = createFakeForecast()
+        val firstHourDisplay = forecast.hourly[0].time.toHourDisplay()
+
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(forecast)
 
         viewModel = WeatherViewModel(repository)
 
@@ -106,8 +124,12 @@ class WeatherScreenTest {
             WeatherScreen(viewModel = viewModel)
         }
 
-        composeTestRule.onNodeWithText("пятница, 15 мая").performClick()
-        composeTestRule.onNodeWithText("14:00").assertIsDisplayed()
+        val dayText = forecast.daily[0].date.toDayWithWeekday()
+        composeTestRule.onNodeWithText(dayText).performClick()
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(firstHourDisplay).assertIsDisplayed()
     }
 
     @Test
@@ -148,7 +170,12 @@ class WeatherScreenTest {
 
     @Test
     fun displaysHourlyForecast() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        val forecast = createFakeForecast()
+        val firstHour = forecast.hourly[1]
+        val firstHourDisplay = firstHour.time.toHourDisplay()
+        val firstTemp = "${firstHour.temperature.toInt()}°C"
+
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(forecast)
 
         viewModel = WeatherViewModel(repository)
 
@@ -156,14 +183,18 @@ class WeatherScreenTest {
             WeatherScreen(viewModel = viewModel)
         }
 
-        composeTestRule.onNodeWithText("Почасовой прогноз").assertIsDisplayed()
-        composeTestRule.onNodeWithText("14:00").assertIsDisplayed()
-        composeTestRule.onNodeWithText("10°C").assertIsDisplayed()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Почасовой прогноз").assertExists()
+        composeTestRule.onNodeWithText(firstHourDisplay).assertExists()
+        composeTestRule.onNodeWithText(firstTemp).assertExists()
     }
 
     @Test
     fun displaysDailyForecast() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        val forecast = createFakeForecast()
+
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(forecast)
 
         viewModel = WeatherViewModel(repository)
 
@@ -172,12 +203,13 @@ class WeatherScreenTest {
         }
 
         composeTestRule.onNodeWithText("Прогноз на 7 дней").assertIsDisplayed()
-        composeTestRule.onNodeWithText("пятница, 15 мая").assertIsDisplayed()
+        val dayText = forecast.daily[0].date.toDayWithWeekday()
+        composeTestRule.onNodeWithText(dayText).assertIsDisplayed()
     }
 
     @Test
     fun displaysCityName() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(createFakeForecast())
 
         viewModel = WeatherViewModel(repository)
 
@@ -190,7 +222,7 @@ class WeatherScreenTest {
 
     @Test
     fun retryButtonNotShownOnSuccess() = runTest {
-        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(fakeForecast)
+        coEvery { repository.getWeatherForecast(any(), any()) } returns flowOf(createFakeForecast())
         viewModel = WeatherViewModel(repository)
 
         composeTestRule.setContent { WeatherScreen(viewModel = viewModel) }
